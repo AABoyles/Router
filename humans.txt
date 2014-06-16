@@ -1,0 +1,11 @@
+# humanstxt.org/
+# The humans responsible & technology colophon
+
+# TEAM
+
+    Tony Boyles (AABoyles@gmail.com) -- Developer -- @AABoyles
+
+# TECHNOLOGY COLOPHON
+
+    HTML5, CSS3
+    OpenLayers
