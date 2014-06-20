@@ -23,32 +23,32 @@ function init(){
   app.recalcRoute = function() {
     var vertices = _.pluck(app.drawingLayer.getFeaturesByAttribute(), "geometry");
     app.path.removeComponents(vertices);
-    for(var i = 0; i < vertices.length; i++){
+    vertices.forEach(function(vertex){
       var activeVertices = app.path.components;
       var minInsertDist = Number.MAX_VALUE;
-      var insertIndex = 0;
-      for(var j = 0; j < activeVertices.length-1; j++){
-        var before = vertices[j], after = vertices[j+1];
-        if(before == vertices[i] || after == vertices[i]) continue;
-        var insertDist = before.distanceTo(vertices[i]) + after.distanceTo(vertices[i]) - before.distanceTo(after);
-        if(insertDist < minInsertDist){
+      var insertIndex = activeVertices.length;
+      for(var j = 1; j < activeVertices.length; j++){
+        var before = activeVertices[j-1], after = activeVertices[j];
+        if(vertex == before || vertex == after) continue;
+        var insertDist = before.distanceTo(vertex) + vertex.distanceTo(after) - before.distanceTo(after);
+        if(insertDist <= minInsertDist){
           minInsertDist = insertDist;
-          insertIndex = i+1;
+          insertIndex = j;
         }
       }
-      app.path.addComponent(vertices[i], insertIndex);
-    }
+      app.path.addComponent(vertex, insertIndex);
+    });
     app.pathLayer.redraw();
   };
-
-  app.drawingLayer.events.register("featureremoved", {}, function(evt) {
-    app.path.removeComponent(evt.feature.geometry);
-    app.recalcRoute();
-  });
 
   var point = new OpenLayers.Control.DrawFeature(app.drawingLayer, OpenLayers.Handler.Point);
   point.events.register("featureadded", {}, function(evt) {
     app.path.addComponent(evt.feature.geometry);
+    app.recalcRoute();
+  });
+
+  app.drawingLayer.events.register("featureremoved", {}, function(evt) {
+    app.path.removeComponent(evt.feature.geometry);
     app.recalcRoute();
   });
 
