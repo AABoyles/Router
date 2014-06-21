@@ -10,11 +10,11 @@ function init(){
   app.map = new OpenLayers.Map("map");
   app.map.addLayer(new OpenLayers.Layer.OSM("Open Street Map"));
 
-  app.drawingLayer = new OpenLayers.Layer.Vector("Drawing Layer");
+  app.drawingLayer = new OpenLayers.Layer.Vector("Points");
   app.map.addLayer(app.drawingLayer);
 
   app.path = new OpenLayers.Geometry.LinearRing();
-  app.pathLayer = new OpenLayers.Layer.Vector("Path Layer");
+  app.pathLayer = new OpenLayers.Layer.Vector("Path");
   app.pathLayer.addFeatures([new OpenLayers.Feature.Vector(app.path, {}, {
     fillOpacity: 0
   })]);
@@ -48,15 +48,10 @@ function init(){
     app.recalcRoute();
   });
 
-  app.drawingLayer.events.register("featureremoved", {}, function(evt) {
-    app.path.removeComponent(evt.feature.geometry);
-    app.recalcRoute();
-  });
-
   var drag = new OpenLayers.Control.DragFeature(app.drawingLayer, {
     onDrag: function(feature) {
       app.recalcRoute();
-    },
+    }
   });
 
   app.map.addControls([
