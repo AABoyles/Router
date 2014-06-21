@@ -13,7 +13,7 @@ function init(){
   app.drawingLayer = new OpenLayers.Layer.Vector("Drawing Layer");
   app.map.addLayer(app.drawingLayer);
 
-  app.path = new OpenLayers.Geometry.LineString([]);
+  app.path = new OpenLayers.Geometry.LinearRing();
   app.pathLayer = new OpenLayers.Layer.Vector("Path Layer");
   app.pathLayer.addFeatures([new OpenLayers.Feature.Vector(app.path, {}, {
     fillOpacity: 0
@@ -25,13 +25,14 @@ function init(){
     app.path.removeComponents(vertices);
     vertices.forEach(function(vertex){
       var activeVertices = app.path.components;
+      if(_.contains(activeVertices, vertex)) return;
       var minInsertDist = Number.MAX_VALUE;
       var insertIndex = activeVertices.length;
       for(var j = 1; j < activeVertices.length; j++){
         var before = activeVertices[j-1], after = activeVertices[j];
         if(vertex == before || vertex == after) continue;
         var insertDist = before.distanceTo(vertex) + vertex.distanceTo(after) - before.distanceTo(after);
-        if(insertDist <= minInsertDist){
+        if(insertDist < minInsertDist){
           minInsertDist = insertDist;
           insertIndex = j;
         }
