@@ -1,70 +1,54 @@
-app={
-  map: {},
-  path: {},
-  pathLayer: {},
-  drawingLayer: {},
-  recalcRoute: function(){}
+app = {
+    interactions: {},
+    map: {},
+    path: {},
+    pathLayer: {},
+    drawingLayer: {},
+    recalcRoute: function() {}
 };
 
-function init(){
-  app.map = new OpenLayers.Map("map");
-  app.map.addLayer(new OpenLayers.Layer.OSM("Open Street Map"));
-
-  app.drawingLayer = new OpenLayers.Layer.Vector("Points");
-  app.map.addLayer(app.drawingLayer);
-
-  app.path = new OpenLayers.Geometry.LinearRing();
-  app.pathLayer = new OpenLayers.Layer.Vector("Path");
-  app.pathLayer.addFeatures([new OpenLayers.Feature.Vector(app.path, {}, {
-    fillOpacity: 0
-  })]);
-  app.map.addLayer(app.pathLayer);
-
-  app.recalcRoute = function() {
-    var vertices = _.pluck(app.drawingLayer.getFeaturesByAttribute(), "geometry");
-    app.path.removeComponents(vertices);
-    vertices.forEach(function(vertex){
-      var activeVertices = app.path.components;
-      if(_.contains(activeVertices, vertex)) return;
-      var minInsertDist = Number.MAX_VALUE;
-      var insertIndex = activeVertices.length;
-      for(var j = 1; j < activeVertices.length; j++){
-        var before = activeVertices[j-1], after = activeVertices[j];
-        if(vertex == before || vertex == after) continue;
-        var insertDist = before.distanceTo(vertex) + vertex.distanceTo(after) - before.distanceTo(after);
-        if(insertDist < minInsertDist){
-          minInsertDist = insertDist;
-          insertIndex = j;
-        }
-      }
-      app.path.addComponent(vertex, insertIndex);
+function init() {
+    var raster = new ol.layer.Tile({
+        source: new ol.source.MapQuest({
+            layer: 'sat'
+        })
     });
-    app.pathLayer.redraw();
-  };
-
-  var point = new OpenLayers.Control.DrawFeature(app.drawingLayer, OpenLayers.Handler.Point);
-  point.events.register("featureadded", {}, function(evt) {
-    app.path.addComponent(evt.feature.geometry);
-    app.recalcRoute();
-  });
-
-  var drag = new OpenLayers.Control.DragFeature(app.drawingLayer, {
-    onDrag: function(feature) {
-      app.recalcRoute();
-    }
-  });
-
-  app.map.addControls([
-    point,
-    drag,
-    new OpenLayers.Control.LayerSwitcher(),
-    new OpenLayers.Control.MousePosition({
-      displayProjection: "EPSG:4326"
-    })
-  ]);
-
-  point.activate();
-  drag.activate();
-
-  app.map.zoomToMaxExtent();
+    var map = new ol.Map({
+        layers: [raster],
+        target: 'map',
+        view: new ol.View2D({
+            center: [-11000000, 4600000],
+            zoom: 4
+        })
+    });
+    var featureOverlay = new ol.FeatureOverlay({
+        style: new ol.style.Style({
+            fill: new ol.style.Fill({
+                color: 'rgba(255, 255, 255, 0.2)'
+            }),
+            stroke: new ol.style.Stroke({
+                color: '#ffcc33',
+                width: 2
+            }),
+            image: new ol.style.Circle({
+                radius: 7,
+                fill: new ol.style.Fill({
+                    color: '#ffcc33'
+                })
+            })
+        })
+    });
+    featureOverlay.setMap(map);
+    var modify = new ol.interaction.Modify({
+        features: featureOverlay.getFeatures(),
+        deleteCondition: function(event) {
+            return ol.events.condition.shiftKeyOnly(event) && ol.events.condition.singleClick(event);
+        }
+    });
+    map.addInteraction(modify);
+    var draw = new ol.interaction.Draw({
+        features: featureOverlay.getFeatures(),
+        type: "Polygon"
+    });
+    map.addInteraction(draw);
 };
