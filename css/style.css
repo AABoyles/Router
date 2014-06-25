@@ -6,12 +6,45 @@ html, body {
 }
 
 #map {
+    position: absolute;
+    left: 0px;
     height: 100%;
+    width: 100%;
 }
 
-.baseLbl{
-    display:none;
+.panel {
+    position: absolute;
+    right: 0px;
+    width: 250px;
+    border: black 1px solid;
+    border-radius: 10px;
+    background: lightgray;
+    margin: 10px;
+    padding: 10px;
 }
-.baseLayersDiv{
-    display:none;
+
+h2 {
+    margin: 0;
+    border-bottom: 1px solid black;
+}
+
+table {
+    width: 100%;
+}
+
+#nearest-neighbor-distance, #nearest-edge-distance{
+   text-align: right;
+}
+
+#mouse {
+    position: absolute;
+    bottom: 0;
+}
+
+#coords {
+    float:right;
+}
+.ui-button.ui-widget.ui-state-default.ui-corner-all.ui-button-text-only {
+    width: 100%;
+    font-size: .8em;
 }

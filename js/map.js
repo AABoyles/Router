@@ -9,8 +9,7 @@ app = {
     nnCalcRoute: function() {},
     neCalcRoute: function() {},
 };
-
-function init() {
+$(function() {
     app.pointLayer = new OpenLayers.Layer.Vector("Points");
     app.nnPath = new OpenLayers.Geometry.LinearRing();
     app.nnPathLayer = new OpenLayers.Layer.Vector("Nearest-Neighbor");
@@ -51,6 +50,8 @@ function init() {
             app.nePath.addComponent(vertex, insertIndex);
         });
         app.nePathLayer.redraw();
+        var km = app.nePath.getLength()/1000 + "";
+        $("#nearest-edge-distance").text(km.substring(0, km.indexOf(".")) + " km");
     };
     app.nnCalcRoute = function(n) {
         n = typeof n === 'number' ? n : 0;
@@ -74,12 +75,14 @@ function init() {
             current = nextNode;
         }
         app.nnPathLayer.redraw();
+        var km = app.nnPath.getLength()/1000 + "";
+        $("#nearest-neighbor-distance").text(km.substring(0, km.indexOf(".")) + " km");
     };
     app.recalcRoute = function() {
-        if(document.getElementsByName("Nearest-Edge")[0].checked) {
+        if($("#nearest-edge")[0].checked) {
             app.neCalcRoute();
         }
-        if(document.getElementsByName("Nearest-Neighbor")[0].checked) {
+        if($("#nearest-neighbor")[0].checked) {
             app.nnCalcRoute();
         }
     };
@@ -95,9 +98,25 @@ function init() {
             },
             autoActivate: true
         }),
-        new OpenLayers.Control.LayerSwitcher(),
         new OpenLayers.Control.MousePosition({
-            displayProjection: "EPSG:4326"
+            displayProjection: "EPSG:4326",
+            div: $("#coords")[0]
         })
     ]);
-};
+    $('#nearest-neighbor').button().click(function() {
+        if(this.checked) {
+            app.nnCalcRoute();
+        } else {
+            $("#nearest-neighbor-distance").text("");
+        }
+        app.nnPathLayer.setVisibility(this.checked);
+    });
+    $('#nearest-edge').button().click(function() {
+        if(this.checked) {
+            app.neCalcRoute();
+        } else {
+            $("#nearest-edge-distance").text("");
+        }
+        app.nePathLayer.setVisibility(this.checked);
+    });
+});
