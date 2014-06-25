@@ -119,4 +119,6 @@ $(function() {
         }
         app.nePathLayer.setVisibility(this.checked);
     });
+    $('#wtf').button();
+    $("#github").button();
 });
