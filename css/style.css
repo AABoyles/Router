@@ -8,3 +8,10 @@ html, body {
 #map {
     height: 100%;
 }
+
+.baseLbl{
+    display:none;
+}
+.baseLayersDiv{
+    display:none;
+}
